@@ -118,41 +118,48 @@ class project extends MY_controller
         $this->load->view('report', $data);
     }
 
-    function insert()
+
+    function assign_moderator()
     {
         $Project_id = $this->input->post('projectid');
         $this->table = 'tbl_moderator_assignment';
         $this->user = $this->session->userdata('admin');
-        echo $this->user;
-
         if ($this->user != null) {
 
-        } else {
-            $data = array('erros' => "The requested operation cannot be performed.You are not permitted to view product info",
-                'page_title' => 'Access denied');
-            $this->dispaly_forbidden($data);
+            $this->form_validation->set_rules('projectid', 'Project', 'required|is_unique[tbl_moderator_assignment.Project_id]');
+            $this->form_validation->set_message('is_unique', '<div class="alert alert-danger">  <strong>Error <span class="fa fa-1x fa-exclamation"></span>  Moderator  already assigned for this project  
+ </strong> </div>');
+
+
+            // check if the validation works
+            if ($this->form_validation->run() == FALSE) {
+              //  redirect(base_url() . 'project/add_moderator/' . $Project_id);// redirect to  project/add_moderator/prid
+                echo $this->add_moderator($Project_id);
+            } else {
+
+                $data = array(
+                    'Project_id' => $this->input->post('projectid'),
+                    'user_id' => $this->input->post('moderator'),
+                    'assignedby' => $this->user
+                );
+                $insert = $this->User_model->insert($this->table, $data);
+                if ($insert) {
+                    $this->session->set_flashdata('msg', "<div class='alert alert-success'><strong> Moderator  successfully assigned</strong></div>");// set success message
+                    redirect(base_url().'project/add_moderator/'.$Project_id);
+                } else {
+                    $this->session->set_flashdata('msg', "<div class='alert alert-danger'><strong>Moderator not assigned successfully </strong></div>");// set success message
+                    redirect(base_url().'project/add_moderator/'.$Project_id);
+                }
+
+            }
         }
 
-        $this->form_validation->set_rules('projectid', 'Project', 'required|is_unique[tbl_moderator_assignment.Project_id]');
-        // check if the validation works
-//        if ($this->form_validation->run() == FALSE) {
-//            redirect(base_url() . 'project/add_moderator/' . $Project_id);// redirect to  project/add_moderator/prid
-//        } else {
-//
-//            $data = array(
-//                'Project_id'=>$this->input->post('projectid'),
-//                'user_id' =>$this->input->post('userid'),
-//                'assignedby'=>$this->user
-//            );
-//            $insert = $this->insert($this->table, $data);
-//            if ($insert) {
-//                echo 'success';
-//            } else {
-//                echo 'error';
-//            }
-//
-//        }
-    }
+        else {
+                $data = array('erros' => "The requested operation cannot be performed.You are not permitted to view product info",
+                    'page_title' => 'Access denied');
+                $this->dispaly_forbidden($data);
+            }
+        }
 
 
 }

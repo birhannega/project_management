@@ -34,6 +34,7 @@
 
     <?php
 
+    echo validation_errors();
     echo $this->session->flashdata('msg');
 
 
@@ -45,7 +46,7 @@
     ?>
     <div class="col-lg-5">
         <strong>project: <?=$name?>(ID:<?=$prid?>)</strong>
-        <form class="form-group" method="post" action="<?php echo base_url()?>project/insert">
+        <form class="form-group" method="post" action="<?php echo base_url()?>project/assign_moderator">
 
             <div class="form-group">
                 <label class="sr-only" for="exampleInputEmail3">Project </label>

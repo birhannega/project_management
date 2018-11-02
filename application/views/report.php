@@ -31,8 +31,15 @@
     <a href="#"><strong><span class="fa fa-dashboard"></span> My Dashboard  </strong></a>
     <hr>
 
+    <form action="<?php base_url()?>/project/search">
+        <div class="form-group">
+
+        </div>
+
+    </form>
+
+
 </div>
-<script type="text/javascript">
-</script>
+
 </body>
 </html>
