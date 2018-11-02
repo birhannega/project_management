@@ -48,28 +48,23 @@ class project extends MY_controller
 
     }
 
-
-    function add_moderator($project)
+    function add_editor($project)
     {
         $data['page_title'] = "Add moderator";
         $data['projectdetail'] = $this->project_model->get_project_details($project);
-        $data['moderators'] = $this->User_model->list_moderators();
+        $data['editors'] = $this->User_model->list_editors();
 
 
-        $this->load->view('add_moderator', $data);
+        $this->load->view('add_editor', $data);
 
     }
 
-    function add_editor($project)
+    function save_details($project)
     {
 
     }
 
     // form actions
-    function save_details($project)
-    {
-
-    }
 
     function save_project()
     {
@@ -118,7 +113,6 @@ class project extends MY_controller
         $this->load->view('report', $data);
     }
 
-
     function assign_moderator()
     {
         $Project_id = $this->input->post('projectid');
@@ -133,7 +127,7 @@ class project extends MY_controller
 
             // check if the validation works
             if ($this->form_validation->run() == FALSE) {
-              //  redirect(base_url() . 'project/add_moderator/' . $Project_id);// redirect to  project/add_moderator/prid
+                //  redirect(base_url() . 'project/add_moderator/' . $Project_id);// redirect to  project/add_moderator/prid
                 echo $this->add_moderator($Project_id);
             } else {
 
@@ -145,21 +139,71 @@ class project extends MY_controller
                 $insert = $this->User_model->insert($this->table, $data);
                 if ($insert) {
                     $this->session->set_flashdata('msg', "<div class='alert alert-success'><strong> Moderator  successfully assigned</strong></div>");// set success message
-                    redirect(base_url().'project/add_moderator/'.$Project_id);
+                    redirect(base_url() . 'project/add_moderator/' . $Project_id);
                 } else {
                     $this->session->set_flashdata('msg', "<div class='alert alert-danger'><strong>Moderator not assigned successfully </strong></div>");// set success message
-                    redirect(base_url().'project/add_moderator/'.$Project_id);
+                    redirect(base_url() . 'project/add_moderator/' . $Project_id);
                 }
 
             }
+        } else {
+            $data = array('erros' => "The requested operation cannot be performed.You are not permitted to view product info",
+                'page_title' => 'Access denied');
+            $this->dispaly_forbidden($data);
         }
+    }
 
-        else {
-                $data = array('erros' => "The requested operation cannot be performed.You are not permitted to view product info",
-                    'page_title' => 'Access denied');
-                $this->dispaly_forbidden($data);
+    function add_moderator($project)
+    {
+        $data['page_title'] = "Add moderator";
+        $data['projectdetail'] = $this->project_model->get_project_details($project);
+        $data['moderators'] = $this->User_model->list_moderators();
+
+
+        $this->load->view('add_moderator', $data);
+
+    }
+
+    function assign_editor()
+    {
+        $Project_id = $this->input->post('projectid');
+        $this->table = 'tbl_editor_assignment';
+        $this->user = $this->session->userdata('admin');
+        if ($this->user != null) {
+
+            $this->form_validation->set_rules('projectid', 'Project', 'required|is_unique[tbl_editor_assignment.Project_id]');
+            $this->form_validation->set_message('is_unique', '<div class="alert alert-danger">  <strong>Error
+ <span class="fa fa-1x fa-exclamation"></span>  Editor  already assigned for this project  
+                      </strong> </div>');
+
+
+            // check if the validation works
+            if ($this->form_validation->run() == FALSE) {
+                //  redirect(base_url() . 'project/add_moderator/' . $Project_id);// redirect to  project/add_moderator/prid
+                echo $this->add_moderator($Project_id);
+            } else {
+
+                $data = array(
+                    'Project_id' => $this->input->post('projectid'),
+                    'user_id' => $this->input->post('editor'),
+                    'assigned_by' => $this->user
+                );
+                $insert = $this->User_model->insert($this->table, $data);
+                if ($insert) {
+                    $this->session->set_flashdata('msg', "<div class='alert alert-success'><strong> Editor  successfully assigned</strong></div>");// set success message
+                    redirect(base_url() . 'project/add_editor/' . $Project_id);
+                } else {
+                    $this->session->set_flashdata('msg', "<div class='alert alert-danger'><strong>Editor not assigned successfully </strong></div>");// set success message
+                    redirect(base_url() . 'project/add_editor/' . $Project_id);
+                }
+
             }
+        } else {
+            $data = array('erros' => "The requested operation cannot be performed.You are not permitted to view product info",
+                'page_title' => 'Access denied');
+            $this->dispaly_forbidden($data);
         }
+    }
 
 
 }
